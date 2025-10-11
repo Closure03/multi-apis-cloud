@@ -2,7 +2,7 @@ name: Build & Push both services to ACR (monorepo)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
     paths:
       - "users-api/**"
       - "products-api/**"
@@ -50,5 +50,3 @@ jobs:
           docker tag  ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
-
-          
