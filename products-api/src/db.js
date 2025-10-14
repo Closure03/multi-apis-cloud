@@ -7,7 +7,7 @@ export const pool = new pg.Pool({
 
 console.log("DB URL:", process.env.USERS_DATABASE_URL);
 
-
+// esto es un comentario
 
 
 
