@@ -1,4 +1,4 @@
-CREATE SCHEMA IF NOT EXISTS products_schema AUTHORIZATION almurcial;
+CREATE SCHEMA IF NOT EXISTS products_schema AUTHORIZATION sgsadmin;
 
 -- 2) Crear la tabla dentro del esquema
 CREATE TABLE IF NOT EXISTS products_schema.products (
@@ -9,6 +9,6 @@ CREATE TABLE IF NOT EXISTS products_schema.products (
 );
 
 -- 3) (Opcional) Dar privilegios al usuario administrador
-GRANT ALL PRIVILEGES ON SCHEMA products_schema TO almurcial;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA products_schema TO almurcial;
+GRANT ALL PRIVILEGES ON SCHEMA products_schema TO sgsadmin;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA products_schema TO sgsadmin;
 
