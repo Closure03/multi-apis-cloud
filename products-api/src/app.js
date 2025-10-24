@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { Product } from "./models/Product.js";
+import { Product } from "./models/products.js";
 import mongoose from "mongoose";
 
 const app = express();
