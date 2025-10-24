@@ -2,8 +2,7 @@ FROM node:20-alpine
 ENV NODE_ENV=production
 WORKDIR /app
 
-# ⬅️ Copia package.json + package-lock.json
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
 COPY src ./src
