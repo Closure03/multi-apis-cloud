@@ -106,3 +106,5 @@ app.delete("/products/:id", async (req, res) => {
 });
 
 export default app;
+
+//adicional line at the end of file
