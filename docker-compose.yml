@@ -22,3 +22,8 @@ services:
     depends_on:
       - users-api
     restart: unless-stopped
+
+
+
+
+# (opcional) Si tienes una base de datos como servicio, puedes agregarla aquí.
