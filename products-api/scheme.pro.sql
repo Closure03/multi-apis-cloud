@@ -11,7 +11,3 @@ CREATE TABLE IF NOT EXISTS products_schema.products (
 -- 3) (Opcional) Dar privilegios al usuario administrador
 GRANT ALL PRIVILEGES ON SCHEMA products_schema TO sgsadmin;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA products_schema TO sgsadmin;
-
-
-
--- 4) (Opcional) Dar privilegios de solo lectura a un usuario específico
