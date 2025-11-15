@@ -1,0 +1,10 @@
+[
+  {
+    "id": "v1",
+    "cliente_id": "1",
+    "productos": [
+      { "producto_id": "101", "cantidad": 3 }
+    ],
+    "total": 15000
+  }
+]

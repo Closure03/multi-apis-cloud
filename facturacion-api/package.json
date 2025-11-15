@@ -1,0 +1,13 @@
+{
+  "name": "facturacion-api",
+  "version": "1.0.0",
+  "description": "API para gestión de facturación",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  }
+}

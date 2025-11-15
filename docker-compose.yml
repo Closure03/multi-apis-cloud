@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.8'
 
 services:
   users-api:
@@ -16,9 +16,61 @@ services:
     environment:
       - PORT=4002
       - SERVICE_NAME=products-api
+      - MONGO_URI=${PRODUCTS_COSMOS_URI}  # 👈 Cosmos DB
       - USERS_API_URL=http://users-api:4001
     ports:
       - "4002:4002"
     depends_on:
       - users-api
+    restart: unless-stopped
+
+  clientes-api:
+    build: ./clientes-api
+    environment:
+      - PORT=4003
+      - SERVICE_NAME=clientes-api
+      - DATABASE_URL=${CLIENTES_DATABASE_URL}
+    ports:
+      - "4003:4003"
+    restart: unless-stopped
+
+  facturacion-api:
+    build: ./facturacion-api
+    environment:
+      - PORT=4004
+      - SERVICE_NAME=facturacion-api
+      - DATABASE_URL=${FACTURACION_DATABASE_URL}
+      - CLIENTES_API_URL=http://clientes-api:4003
+      - PRODUCTS_API_URL=http://products-api:4002
+    ports:
+      - "4004:4004"
+    depends_on:
+      - clientes-api
+      - products-api
+    restart: unless-stopped
+
+  inventario-api:
+    build: ./inventario-api
+    environment:
+      - PORT=4005
+      - SERVICE_NAME=inventario-api
+      - MONGO_URI=${INVENTARIO_COSMOS_URI}
+    ports:
+      - "4005:4005"
+    restart: unless-stopped
+
+  reportes-api:
+    build: ./reportes-api
+    environment:
+      - PORT=4006
+      - SERVICE_NAME=reportes-api
+      - FACTURACION_API_URL=http://facturacion-api:4004
+      - CLIENTES_API_URL=http://clientes-api:4003
+      - PRODUCTS_API_URL=http://products-api:4002
+    ports:
+      - "4006:4006"
+    depends_on:
+      - facturacion-api
+      - clientes-api
+      - products-api
     restart: unless-stopped

@@ -1,52 +1,109 @@
 import express from "express";
 import cors from "cors";
-import products from "./data.json" assert { type: "json" };
-import fetch from "node-fetch";
+import { Product } from "./models/products.js";
+import mongoose from "mongoose";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 4002;
-const SERVICE = process.env.SERVICE_NAME || "products-api";
-const USERS_API_URL = process.env.USERS_API_URL || "http://users-api:4001";
-
-app.get("/health", (_req, res) => res.json({ status: "ok", service: SERVICE }));
-
-// GET /products
-app.get("/products", (_req, res) => res.json(products));
-
-// GET /products/:id
-app.get("/products/:id", (req, res) => {
-  const p = products.find(x => String(x.id) === String(req.params.id));
-  if (!p) return res.status(404).json({ error: "Product not found" });
-  res.json(p);
+// Health (sin tocar BD)
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", service: "products-api", driver: "mongoose" });
 });
 
-// POST /products (simulado)
-app.post("/products", (req, res) => {
-  res.status(201).json({
-    message: "Simulado: se crearía el producto",
-    payload: req.body
-  });
-});
-
-// Ejemplo de comunicación entre servicios (compose crea la red):
-// GET /products/with-users  -> concatena productos con conteo de usuarios (mock)
-app.get("/products/with-users", async (_req, res) => {
+// Health de BD (consulta liviana)
+app.get("/db/health", async (_req, res) => {
   try {
-    const r = await fetch(`${USERS_API_URL}/users`);
-    const users = await r.json();
-    res.json({
-      products,
-      usersCount: Array.isArray(users) ? users.length : 0
-    });
+    // ping a admin:
+    await mongoose.connection.db.admin().ping();
+    res.json({ ok: true });
   } catch (e) {
-    res.status(502).json({ error: "No se pudo consultar users-api", detail: String(e) });
+    res.status(500).json({ ok: false, error: String(e) });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ ${SERVICE} listening on http://localhost:${PORT}`);
-  console.log(`↔️  USERS_API_URL=${USERS_API_URL}`);
+// GET /products
+app.get("/products", async (_req, res) => {
+  try {
+    const docs = await Product.find().sort({ _id: 1 }).lean();
+    res.json(docs);
+  } catch (e) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
+
+// GET /products/:id
+app.get("/products/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ error: "Invalid ObjectId" });
+    }
+
+    const doc = await Product.findById(id).lean();
+    if (!doc) return res.status(404).json({ error: "Product not found" });
+
+    res.json(doc);
+  } catch (e) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// POST /products
+app.post("/products", async (req, res) => {
+  try {
+    const { name, price } = req.body ?? {};
+    if (!name || price == null) {
+      return res.status(400).json({ error: "name & price required" });
+    }
+
+    const doc = await Product.create({ name, price });
+    res.status(201).json(doc);
+  } catch (e) {
+    res.status(500).json({ error: "Internal server error", detail: String(e) });
+  }
+});
+
+// PUT /products/:id
+app.put("/products/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ error: "Invalid ObjectId" });
+    }
+
+    const { name, price } = req.body ?? {};
+    const doc = await Product.findByIdAndUpdate(
+      id,
+      { $set: { ...(name && { name }), ...(price != null && { price }) } },
+      { new: true }
+    ).lean();
+
+    if (!doc) return res.status(404).json({ error: "Product not found" });
+    res.json(doc);
+  } catch (e) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// DELETE /products/:id
+app.delete("/products/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ error: "Invalid ObjectId" });
+    }
+
+    const r = await Product.deleteOne({ _id: id });
+    if (r.deletedCount === 0) return res.status(404).json({ error: "Product not found" });
+
+    res.json({ message: "Product deleted" });
+  } catch (e) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+export default app;
+//additional 

@@ -1,4 +1,4 @@
-name: Build & Push both services to ACR (monorepo)
+name: Build & Push all services to ACR (monorepo)
 
 on:
   push:
@@ -6,6 +6,10 @@ on:
     paths:
       - "users-api/**"
       - "products-api/**"
+      - "clientes-api/**"
+      - "facturacion-api/**"
+      - "inventario-api/**"
+      - "reportes-api/**"
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
@@ -23,6 +27,18 @@ jobs:
           - service: products-api
             context: products-api
             image: products-api
+          - service: clientes-api
+            context: clientes-api
+            image: clientes-api
+          - service: facturacion-api
+            context: facturacion-api
+            image: facturacion-api
+          - service: inventario-api
+            context: inventario-api
+            image: inventario-api
+          - service: reportes-api
+            context: reportes-api
+            image: reportes-api
 
     steps:
       - name: 📥 Checkout
